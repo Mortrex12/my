@@ -1,32 +1,113 @@
-# Prerequisites
-*.d
+#include<iostream>
+#include<cmath>
+using namespace std;
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
+struct node
+{
+    int key;
+    node *left;
+    node *right;
+};
 
-# Precompiled Headers
-*.gch
-*.pch
+node *getNewNode(int val) {   // creating a new BST node
+    node *newNode = new node;
+    newNode->key   = val;
+    newNode->left  = NULL;
+    newNode->right = NULL;
+    return newNode;
+}
 
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
+node *insert(node *root, int key) {  // inserting key in the proper location inside BST
+    node *newnode = getNewNode(key);
+    node *x = root;
+    node *y = NULL;
+ 
+    while (x != NULL) {
+        y = x;
+        if (key < x->key)
+            x = x->left;
+        else
+            x = x->right;
+    }
 
-# Fortran module files
-*.mod
-*.smod
+    if (y == NULL)
+        y = newnode;
+    else if (key < y->key)
+        y->left = newnode;
+    else
+        y->right = newnode;
+    return y;
+    
+}
 
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
+void printBST(node *root) {   // printing all the keys(values) of BST
+    if(root == NULL)
+        return;
+    printBST(root->left);
+    cout << root->key << " ";
+    printBST(root->right);
+}
 
-# Executables
-*.exe
-*.out
-*.app
+int arr[50], i = 0;    // storing keys to reconstruct the BST
+void Inorder(node *root)
+{
+    if (root==NULL) return;
+    Inorder(root->left);
+    arr[i] = root->key;
+    i++;
+    Inorder(root->right);
+}
+
+
+void reinsert(int st, int end, node *root) // recursive function called to insert element from arr[]
+{
+    int m;
+   // cout<< endl<< st<< "reinsert " << end;
+    if (st == end) { // only one element to be inserted
+        root = insert(root,arr[st]);
+        cout << " "<< arr[st]  ;
+    }
+    else if (st < end){
+        m = ceil((st+end)/2.0);
+        root=insert(root, arr[m]); // inserting root of subtree
+        cout<<" "<< arr[m];
+        reinsert(st, m-1,root);  // inserting element for left subtree
+        reinsert(m+1, end ,root); // inserting element for right subtree
+        
+    }
+    return;
+}
+
+int main() {
+    node *root = NULL,*rootBal = NULL, *child = NULL;
+    int keyVal, mid;
+
+    cout<<"Enter key values: ";
+    cin >> keyVal;
+    root = insert(root,keyVal);    // parent root
+    cin >> keyVal;
+    while (keyVal != -1) {
+        child = insert(root,keyVal);
+        cin >> keyVal;
+    }
+    cout << "Printing keys from original BST: ";
+    printBST(root);
+    
+    //end=i-1;
+    Inorder(root);
+    
+    mid = ceil( (i-1)/ 2.0);
+    //cout<< i;
+    //cout << mid <<" ---"<<i;
+    cout << endl <<"...Balancing BST..."<< endl;
+    rootBal = insert(rootBal,arr[mid]); // Inserting root for balanced BST
+    cout << "Inserting root for balanced BST: "<< rootBal->key<<endl;
+    cout << "To create left subtree insert: ";
+    reinsert(0, mid-1, rootBal); // creating left subtree
+    cout <<endl<<"To create right subtree insert: ";
+    reinsert(mid+1, i-1, rootBal); // creating right subtree
+    cout << endl;
+    
+//  printBST(rootBal);  //  printBST(root);
+    return 0;
+}
